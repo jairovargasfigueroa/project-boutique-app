@@ -30,12 +30,14 @@ class CheckoutScreen extends StatelessWidget {
                 ...carritoProvider.items.map((item) {
                   return Card(
                     child: ListTile(
-                      title: Text(
-                        '${item.variante.color} - ${item.variante.talla}',
+                      title: Text(item.variante.productoNombre),
+                      subtitle: Text(
+                        item.variante.talla != null
+                            ? 'Talla: ${item.variante.talla} - Cantidad: ${item.cantidad}'
+                            : 'Cantidad: ${item.cantidad}',
                       ),
-                      subtitle: Text('Cantidad: ${item.cantidad}'),
                       trailing: Text(
-                        '\$${item.subtotal}',
+                        '\$${item.subtotal.toStringAsFixed(2)}',
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
@@ -137,7 +139,7 @@ class CheckoutScreen extends StatelessWidget {
                               : () async {
                                 // Preparar datos de venta
                                 final ventaData = carritoProvider.prepararVenta(
-                                  tipoPago: 'contado',
+                                  tipoVenta: 'contado',
                                 );
 
                                 // Guardar total antes de limpiar carrito

@@ -10,23 +10,38 @@ class ProductosProvider extends ChangeNotifier {
   List<ProductoModel> _productos = [];
   bool _isLoading = false;
   String? _error;
+  Map<String, dynamic> _filtrosActivos = {};
 
   List<ProductoModel> get productos => _productos;
   bool get isLoading => _isLoading;
   String? get error => _error;
+  Map<String, dynamic> get filtrosActivos => _filtrosActivos;
 
-  Future<void> cargarProductos() async {
+  Future<void> cargarProductos({Map<String, dynamic>? filtros}) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
 
     try {
-      _productos = await repository.getProductos();
+      if (filtros != null) {
+        _filtrosActivos = filtros;
+      }
+
+      _productos = await repository.getProductos(filtros: _filtrosActivos);
     } catch (e) {
       _error = e.toString();
     } finally {
       _isLoading = false;
       notifyListeners();
     }
+  }
+
+  void aplicarFiltros(Map<String, dynamic> filtros) {
+    cargarProductos(filtros: filtros);
+  }
+
+  void limpiarFiltros() {
+    _filtrosActivos = {};
+    cargarProductos();
   }
 }

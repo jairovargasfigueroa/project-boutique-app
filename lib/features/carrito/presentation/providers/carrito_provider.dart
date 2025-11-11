@@ -61,15 +61,13 @@ class CarritoProvider extends ChangeNotifier {
 
   // Preparar datos para enviar al backend
   Map<String, dynamic> prepararVenta({
-    required String tipoPago,
-    int? interes,
-    int? plazoMeses,
+    String tipoVenta = 'contado', // Por defecto "contado" para ventas online
+    String origen = 'ecommerce', // Por defecto "ecommerce" para ventas online
   }) {
     return {
+      'tipo_venta': tipoVenta,
+      'origen': origen,
       'items': _items.map((item) => item.toJson()).toList(),
-      'tipo_pago': tipoPago,
-      if (interes != null) 'interes': interes,
-      if (plazoMeses != null) 'plazo_meses': plazoMeses,
     };
   }
 }

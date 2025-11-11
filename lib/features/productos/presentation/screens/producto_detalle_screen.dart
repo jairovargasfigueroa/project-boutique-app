@@ -83,6 +83,22 @@ class _ProductoDetalleScreenState extends State<ProductoDetalleScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Imagen del producto
+                if (producto.imagenUrl.isNotEmpty)
+                  Image.network(
+                    producto.imagenUrl,
+                    height: 300,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        height: 300,
+                        color: Colors.grey[300],
+                        child: const Icon(Icons.image_not_supported, size: 80),
+                      );
+                    },
+                  ),
+
                 // Información del producto
                 Padding(
                   padding: const EdgeInsets.all(16.0),
@@ -95,22 +111,32 @@ class _ProductoDetalleScreenState extends State<ProductoDetalleScreen> {
                       ),
                       const SizedBox(height: 8),
                       Text(producto.descripcion),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          Chip(
+                            label: Text(producto.categoriaNombre),
+                            backgroundColor: Colors.blue[100],
+                          ),
+                          const SizedBox(width: 8),
+                          Chip(
+                            label: Text(producto.genero),
+                            backgroundColor: Colors.purple[100],
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
                       Text(
-                        'Precio Base: \$${producto.precioBase}',
-                        style: const TextStyle(
-                          fontSize: 18,
+                        'Stock disponible: ${producto.stock}',
+                        style: TextStyle(
+                          fontSize: 16,
                           fontWeight: FontWeight.bold,
-                          color: Colors.green,
+                          color: producto.stock > 0 ? Colors.green : Colors.red,
                         ),
                       ),
                       if (producto.marca != null) ...[
                         const SizedBox(height: 8),
                         Text('Marca: ${producto.marca}'),
-                      ],
-                      if (producto.genero != null) ...[
-                        const SizedBox(height: 4),
-                        Text('Género: ${producto.genero}'),
                       ],
                       const SizedBox(height: 16),
                       const Divider(),
@@ -162,28 +188,86 @@ class _ProductoDetalleScreenState extends State<ProductoDetalleScreen> {
                           vertical: 8,
                         ),
                         child: ListTile(
-                          leading: CircleAvatar(
-                            backgroundColor: Colors.grey[300],
-                            child: Text(
-                              variante.talla,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
+                          leading:
+                              variante.talla != null
+                                  ? CircleAvatar(
+                                    backgroundColor: Colors.blue[100],
+                                    child: Text(
+                                      variante.talla!,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  )
+                                  : CircleAvatar(
+                                    backgroundColor: Colors.grey[300],
+                                    child: const Icon(Icons.inventory_2),
+                                  ),
+                          title: Text(
+                            variante.talla != null
+                                ? 'Talla: ${variante.talla}'
+                                : variante.productoNombre,
                           ),
-                          title: Text('${variante.color} - ${variante.talla}'),
                           subtitle: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('Precio: \$${variante.precioVenta}'),
                               Text(
-                                'Stock: ${variante.stock}',
-                                style: TextStyle(
-                                  color:
-                                      variante.esBajoStock
-                                          ? Colors.orange
-                                          : Colors.green,
+                                'Precio: \$${variante.precio}',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.green,
                                 ),
+                              ),
+                              const SizedBox(height: 4),
+                              Row(
+                                children: [
+                                  Icon(
+                                    variante.hayStock
+                                        ? Icons.check_circle
+                                        : Icons.cancel,
+                                    size: 16,
+                                    color:
+                                        variante.hayStock
+                                            ? Colors.green
+                                            : Colors.red,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    'Stock: ${variante.stock}',
+                                    style: TextStyle(
+                                      color:
+                                          variante.stockBajo
+                                              ? Colors.orange
+                                              : (variante.hayStock
+                                                  ? Colors.green
+                                                  : Colors.red),
+                                      fontWeight:
+                                          variante.stockBajo
+                                              ? FontWeight.bold
+                                              : FontWeight.normal,
+                                    ),
+                                  ),
+                                  if (variante.stockBajo && variante.hayStock)
+                                    Container(
+                                      margin: const EdgeInsets.only(left: 8),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 6,
+                                        vertical: 2,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: Colors.orange,
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                      child: const Text(
+                                        '¡Últimas unidades!',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                ],
                               ),
                             ],
                           ),
@@ -202,7 +286,9 @@ class _ProductoDetalleScreenState extends State<ProductoDetalleScreen> {
                                       ).showSnackBar(
                                         SnackBar(
                                           content: Text(
-                                            '✅ ${variante.color} - ${variante.talla} agregado al carrito',
+                                            variante.talla != null
+                                                ? '✅ ${variante.productoNombre} (${variante.talla}) agregado al carrito'
+                                                : '✅ ${variante.productoNombre} agregado al carrito',
                                           ),
                                           duration: const Duration(seconds: 2),
                                           action: SnackBarAction(

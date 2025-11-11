@@ -19,11 +19,13 @@ class PerfilDatasource {
   // Actualizar perfil del usuario (usa token del header automáticamente)
   Future<UsuarioPerfil> actualizarPerfil(UsuarioPerfil perfil) async {
     try {
-      final response = await _api.put('/usuarios/me/', {
-        'email': perfil.email,
-        'first_name': perfil.firstName,
-        'last_name': perfil.lastName,
-      });
+      final response = await _api
+          .patch('/usuarios/actualizar_perfil/', {
+            'email': perfil.email,
+            'first_name': perfil.firstName,
+            'last_name': perfil.lastName,
+            'telefono': perfil.telefono,
+          });
 
       return UsuarioPerfil.fromJson(response.data);
     } catch (e) {

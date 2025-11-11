@@ -10,7 +10,7 @@ class PedidosRepositoryImpl {
   PedidosRepositoryImpl({required this.datasource});
 
   Future<List<Venta>> obtenerVentas() async {
-    return await datasource.obtenerVentas();
+    return await datasource.obtenerMisPedidos();
   }
 
   Future<VentaDetalle> obtenerVentaDetalle(int ventaId) async {

@@ -25,12 +25,12 @@ class _PedidosListScreenState extends State<PedidosListScreen> {
 
   Color _getEstadoColor(String estado) {
     switch (estado.toLowerCase()) {
-      case 'pagado':
+      case 'completado':
         return Colors.green;
       case 'pendiente':
         return Colors.orange;
-      case 'parcial':
-        return Colors.blue;
+      case 'cancelado':
+        return Colors.red;
       default:
         return Colors.grey;
     }
@@ -38,12 +38,12 @@ class _PedidosListScreenState extends State<PedidosListScreen> {
 
   IconData _getEstadoIcon(String estado) {
     switch (estado.toLowerCase()) {
-      case 'pagado':
+      case 'completado':
         return Icons.check_circle;
       case 'pendiente':
         return Icons.schedule;
-      case 'parcial':
-        return Icons.schedule;
+      case 'cancelado':
+        return Icons.cancel;
       default:
         return Icons.help;
     }
@@ -165,7 +165,7 @@ class _PedidosListScreenState extends State<PedidosListScreen> {
                               ),
                               decoration: BoxDecoration(
                                 color: _getEstadoColor(
-                                  venta.estadoPago,
+                                  venta.estado,
                                 ).withOpacity(0.1),
                                 borderRadius: BorderRadius.circular(20),
                               ),
@@ -173,15 +173,15 @@ class _PedidosListScreenState extends State<PedidosListScreen> {
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   Icon(
-                                    _getEstadoIcon(venta.estadoPago),
+                                    _getEstadoIcon(venta.estado),
                                     size: 16,
-                                    color: _getEstadoColor(venta.estadoPago),
+                                    color: _getEstadoColor(venta.estado),
                                   ),
                                   const SizedBox(width: 4),
                                   Text(
-                                    venta.estadoPago.toUpperCase(),
+                                    venta.estado.toUpperCase(),
                                     style: TextStyle(
-                                      color: _getEstadoColor(venta.estadoPago),
+                                      color: _getEstadoColor(venta.estado),
                                       fontWeight: FontWeight.bold,
                                       fontSize: 12,
                                     ),
@@ -212,7 +212,7 @@ class _PedidosListScreenState extends State<PedidosListScreen> {
 
                         const SizedBox(height: 8),
 
-                        // Tipo de pago
+                        // Tipo de venta
                         Row(
                           children: [
                             const Icon(
@@ -222,7 +222,7 @@ class _PedidosListScreenState extends State<PedidosListScreen> {
                             ),
                             const SizedBox(width: 8),
                             Text(
-                              venta.tipoPago.toUpperCase(),
+                              venta.tipoVenta.toUpperCase(),
                               style: TextStyle(color: Colors.grey[600]),
                             ),
                           ],
@@ -230,25 +230,58 @@ class _PedidosListScreenState extends State<PedidosListScreen> {
 
                         const Divider(height: 24),
 
-                        // Total
+                        // Total y botones
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text(
-                              'Total:',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
-                              ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'Total:',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                                Text(
+                                  'Bs. ${venta.total}',
+                                  style: const TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.green,
+                                  ),
+                                ),
+                              ],
                             ),
-                            Text(
-                              'Bs. ${venta.total}',
-                              style: const TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.green,
+
+                            // Botón según estado
+                            if (venta.estado == 'pendiente')
+                              ElevatedButton.icon(
+                                onPressed: () {
+                                  context.push(
+                                    '/pagos/${venta.id}',
+                                    extra: {
+                                      'ventaId': venta.id,
+                                      'total': double.parse(venta.total),
+                                    },
+                                  );
+                                },
+                                icon: const Icon(Icons.payment, size: 18),
+                                label: const Text('Pagar'),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.orange,
+                                  foregroundColor: Colors.white,
+                                ),
+                              )
+                            else
+                              OutlinedButton.icon(
+                                onPressed: () {
+                                  context.push('/pedidos/detalle/${venta.id}');
+                                },
+                                icon: const Icon(Icons.visibility, size: 18),
+                                label: const Text('Ver Detalle'),
                               ),
-                            ),
                           ],
                         ),
                       ],

@@ -1,36 +1,37 @@
-import 'categoria_model.dart';
-
 class ProductoModel {
   final int id;
   final String nombre;
+  final int categoria;
+  final String categoriaNombre;
+  final String genero;
   final String descripcion;
-  final int precioBase;
   final String? marca;
-  final String? genero;
-  final CategoriaModel? categoria;
+  final String imagenUrl;
+  final int stock;
 
   ProductoModel({
     required this.id,
     required this.nombre,
+    required this.categoria,
+    required this.categoriaNombre,
+    required this.genero,
     required this.descripcion,
-    required this.precioBase,
     this.marca,
-    this.genero,
-    this.categoria,
+    required this.imagenUrl,
+    required this.stock,
   });
 
   factory ProductoModel.fromJson(Map<String, dynamic> json) {
     return ProductoModel(
       id: json['id'],
       nombre: json['nombre'],
-      descripcion: json['descripcion'],
-      precioBase: json['precio_base'],
-      marca: json['marca'], // Puede ser null si no viene en la API
+      categoria: json['categoria'],
+      categoriaNombre: json['categoria_nombre'],
       genero: json['genero'],
-      categoria:
-          json['categoria'] != null && json['categoria'] is Map
-              ? CategoriaModel.fromJson(json['categoria'])
-              : null, // Si categoria es int (ID), la ignoramos por ahora
+      descripcion: json['descripcion'],
+      marca: json['marca'],
+      imagenUrl: json['image'], // El backend devuelve 'image'
+      stock: json['stock'],
     );
   }
 
@@ -38,11 +39,13 @@ class ProductoModel {
     return {
       'id': id,
       'nombre': nombre,
-      'descripcion': descripcion,
-      'precio_base': precioBase,
-      'marca': marca,
+      'categoria': categoria,
+      'categoria_nombre': categoriaNombre,
       'genero': genero,
-      'categoria': categoria?.toJson(),
+      'descripcion': descripcion,
+      'marca': marca,
+      'image': imagenUrl, // Mantenemos consistencia con el backend
+      'stock': stock,
     };
   }
 }

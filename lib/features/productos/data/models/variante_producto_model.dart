@@ -1,24 +1,24 @@
 class VarianteProducto {
   final int id;
   final int productoId;
-  final String talla;
-  final String color;
-  final double precioVenta;
-  final double precioCosto;
-  final String? imagen;
+  final String productoNombre;
+  final String? talla;
+  final String precio;
   final int stock;
   final int stockMinimo;
+  final bool hayStock;
+  final bool stockBajo;
 
   VarianteProducto({
     required this.id,
     required this.productoId,
-    required this.talla,
-    required this.color,
-    required this.precioVenta,
-    required this.precioCosto,
-    this.imagen,
+    required this.productoNombre,
+    this.talla,
+    required this.precio,
     required this.stock,
     required this.stockMinimo,
+    required this.hayStock,
+    required this.stockBajo,
   });
 
   // Convertir JSON a Modelo
@@ -26,23 +26,35 @@ class VarianteProducto {
     return VarianteProducto(
       id: json['id'],
       productoId: json['producto'],
+      productoNombre: json['producto_nombre'],
       talla: json['talla'],
-      color: json['color'],
-      precioVenta:
-          json['precio_venta'] is String
-              ? double.parse(json['precio_venta'])
-              : (json['precio_venta'] as num).toDouble(),
-      precioCosto:
-          json['precio_costo'] is String
-              ? double.parse(json['precio_costo'])
-              : (json['precio_costo'] as num).toDouble(),
-      imagen: json['imagen'],
+      precio: json['precio'].toString(),
       stock: json['stock'],
       stockMinimo: json['stock_minimo'],
+      hayStock: json['hay_stock'],
+      stockBajo: json['stock_bajo'],
     );
   }
 
+  // Convertir a JSON
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'producto': productoId,
+      'producto_nombre': productoNombre,
+      'talla': talla,
+      'precio': precio,
+      'stock': stock,
+      'stock_minimo': stockMinimo,
+      'hay_stock': hayStock,
+      'stock_bajo': stockBajo,
+    };
+  }
+
   // Helpers
-  bool get tieneStock => stock > 0;
-  bool get esBajoStock => stock <= stockMinimo;
+  bool get tieneStock => hayStock;
+  bool get esBajoStock => stockBajo;
+
+  // Obtener precio como double para cálculos
+  double get precioNumerico => double.parse(precio);
 }

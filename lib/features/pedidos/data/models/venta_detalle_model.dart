@@ -4,12 +4,15 @@ import 'detalle_item_model.dart';
 
 class VentaDetalle {
   final int id;
-  final int? cliente;
+  final int cliente;
   final String clienteNombre;
+  final int? vendedor;
+  final String? vendedorNombre;
   final DateTime fecha;
   final String total;
-  final String tipoPago;
-  final String estadoPago;
+  final String tipoVenta;
+  final String origen;
+  final String estado;
   final String? interes;
   final String? totalConInteres;
   final int? plazoMeses;
@@ -18,12 +21,15 @@ class VentaDetalle {
 
   VentaDetalle({
     required this.id,
-    this.cliente,
+    required this.cliente,
     required this.clienteNombre,
+    this.vendedor,
+    this.vendedorNombre,
     required this.fecha,
     required this.total,
-    required this.tipoPago,
-    required this.estadoPago,
+    required this.tipoVenta,
+    required this.origen,
+    required this.estado,
     this.interes,
     this.totalConInteres,
     this.plazoMeses,
@@ -36,10 +42,13 @@ class VentaDetalle {
       id: json['id'],
       cliente: json['cliente'],
       clienteNombre: json['cliente_nombre'],
+      vendedor: json['vendedor'],
+      vendedorNombre: json['vendedor_nombre'],
       fecha: DateTime.parse(json['fecha']),
       total: json['total'],
-      tipoPago: json['tipo_pago'],
-      estadoPago: json['estado_pago'],
+      tipoVenta: json['tipo_venta'],
+      origen: json['origen'],
+      estado: json['estado'],
       interes: json['interes'],
       totalConInteres: json['total_con_interes'],
       plazoMeses: json['plazo_meses'],
@@ -50,4 +59,23 @@ class VentaDetalle {
               .toList(),
     );
   }
+
+  // Helpers para la UI
+  String get totalFormateado => 'Bs. $total';
+
+  String get estadoTexto {
+    switch (estado) {
+      case 'completado':
+        return 'Completado';
+      case 'pendiente':
+        return 'Pendiente';
+      case 'cancelado':
+        return 'Cancelado';
+      default:
+        return estado;
+    }
+  }
+
+  bool get esContado => tipoVenta == 'contado';
+  bool get esCredito => tipoVenta == 'credito';
 }

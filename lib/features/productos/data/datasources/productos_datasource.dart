@@ -1,90 +1,88 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
-
+import '../../../../core/services/api_service.dart';
+import '../../../../core/constants/api_constants.dart';
 import '../models/producto_model.dart';
 import '../models/variante_producto_model.dart';
 
 class ProductosDatasource {
-  // URL base configurable
-  static const String baseUrl = 'http://192.168.1.9:8000'; // CAMBIAR AQUÍ
+  final ApiService _apiService = ApiService();
 
-  // Endpoint específico
-  static const String productosEndpoint = '/api/productos'; // CAMBIAR AQUÍ
+  Future<List<ProductoModel>> getProductos({
+    Map<String, dynamic>? filtros,
+  }) async {
+    try {
+      print('🌐 Llamando a: ${ApiConstants.baseUrl}${ApiConstants.productos}');
 
-  Future<List<ProductoModel>> getProductos() async {
-    final url = Uri.parse('$baseUrl$productosEndpoint');
-
-    print('🌐 Llamando a: $url');
-
-    final response = await http.get(
-      url,
-      headers: {'Content-Type': 'application/json'},
-    );
-
-    print('📡 Status Code: ${response.statusCode}');
-    print('📄 Response Body: ${response.body}');
-
-    if (response.statusCode == 200) {
-      final decodedData = json.decode(response.body);
-      print('🔍 Decoded Data Type: ${decodedData.runtimeType}');
-      print('🔍 Decoded Data: $decodedData');
-
-      final List<dynamic> jsonList = decodedData as List<dynamic>;
-      print('📋 JsonList Length: ${jsonList.length}');
-
-      if (jsonList.isNotEmpty) {
-        print('🔍 First Item Type: ${jsonList[0].runtimeType}');
-        print('🔍 First Item: ${jsonList[0]}');
+      if (filtros != null && filtros.isNotEmpty) {
+        print('📊 Con filtros: $filtros');
       }
 
-      return jsonList.map((json) => ProductoModel.fromJson(json)).toList();
-    } else {
-      throw Exception('Error al cargar productos: ${response.statusCode}');
+      final response = await _apiService.get(
+        ApiConstants.productos,
+        queryParameters: filtros,
+      );
+
+      print('📡 Status Code: ${response.statusCode}');
+      print('📄 Response Data: ${response.data}');
+
+      if (response.statusCode == 200) {
+        final List<dynamic> jsonList = response.data as List<dynamic>;
+        print('📋 JsonList Length: ${jsonList.length}');
+
+        if (jsonList.isNotEmpty) {
+          print('🔍 First Item: ${jsonList[0]}');
+        }
+
+        return jsonList.map((json) => ProductoModel.fromJson(json)).toList();
+      } else {
+        throw Exception('Error al cargar productos: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('❌ Error en getProductos: $e');
+      rethrow;
     }
   }
 
   // Obtener UN producto por ID
   Future<ProductoModel> obtenerProductoPorId(int id) async {
-    final url = Uri.parse('$baseUrl$productosEndpoint/$id/');
+    try {
+      final endpoint = '${ApiConstants.productos}$id/';
+      print('🌐 Llamando a: ${ApiConstants.baseUrl}$endpoint');
 
-    print('🌐 Llamando a: $url');
+      final response = await _apiService.get(endpoint);
 
-    final response = await http.get(
-      url,
-      headers: {'Content-Type': 'application/json'},
-    );
+      print('📡 Status Code: ${response.statusCode}');
 
-    print('📡 Status Code: ${response.statusCode}');
-
-    if (response.statusCode == 200) {
-      final jsonData = json.decode(response.body);
-      return ProductoModel.fromJson(jsonData);
-    } else {
-      throw Exception('Error al obtener producto: ${response.statusCode}');
+      if (response.statusCode == 200) {
+        return ProductoModel.fromJson(response.data);
+      } else {
+        throw Exception('Error al obtener producto: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('❌ Error en obtenerProductoPorId: $e');
+      rethrow;
     }
   }
 
   // Obtener variantes de un producto
   Future<List<VarianteProducto>> obtenerVariantes(int productoId) async {
-    final url = Uri.parse(
-      '$baseUrl$productosEndpoint/$productoId/variantes/',
-    );
+    try {
+      final endpoint = '${ApiConstants.productos}$productoId/variantes/';
+      print('🌐 Llamando a: ${ApiConstants.baseUrl}$endpoint');
 
-    print('🌐 Llamando a: $url');
+      final response = await _apiService.get(endpoint);
 
-    final response = await http.get(
-      url,
-      headers: {'Content-Type': 'application/json'},
-    );
+      print('📡 Status Code: ${response.statusCode}');
+      print('📄 Response Data: ${response.data}');
 
-    print('📡 Status Code: ${response.statusCode}');
-    print('📄 Response Body: ${response.body}');
-
-    if (response.statusCode == 200) {
-      final List<dynamic> jsonList = json.decode(response.body);
-      return jsonList.map((json) => VarianteProducto.fromJson(json)).toList();
-    } else {
-      throw Exception('Error al obtener variantes: ${response.statusCode}');
+      if (response.statusCode == 200) {
+        final List<dynamic> jsonList = response.data as List<dynamic>;
+        return jsonList.map((json) => VarianteProducto.fromJson(json)).toList();
+      } else {
+        throw Exception('Error al obtener variantes: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('❌ Error en obtenerVariantes: $e');
+      rethrow;
     }
   }
 }

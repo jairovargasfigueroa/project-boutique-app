@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../providers/carrito_provider.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
 
 class CarritoScreen extends StatelessWidget {
   const CarritoScreen({Key? key}) : super(key: key);
@@ -109,15 +110,23 @@ class CarritoScreen extends StatelessWidget {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        '${variante.color} - Talla ${variante.talla}',
+                                        variante.productoNombre,
                                         style: const TextStyle(
                                           fontSize: 17,
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
+                                      if (variante.talla != null)
+                                        Text(
+                                          'Talla: ${variante.talla}',
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            color: Colors.grey[600],
+                                          ),
+                                        ),
                                       const SizedBox(height: 4),
                                       Text(
-                                        'Precio: \$${variante.precioVenta.toString()}',
+                                        'Precio: \$${variante.precio}',
                                         style: TextStyle(
                                           fontSize: 14,
                                           color: Colors.grey[700],
@@ -309,8 +318,39 @@ class CarritoScreen extends StatelessWidget {
                         width: double.infinity,
                         height: 54,
                         child: ElevatedButton.icon(
-                          onPressed: () {
-                            context.push('/checkout');
+                          onPressed: () async {
+                            // 🔒 Validar autenticación antes de ir a checkout
+                            final authProvider = context.read<AuthProvider>();
+
+                            if (!authProvider.isAuthenticated) {
+                              // Mostrar diálogo pidiendo login
+                              showDialog(
+                                context: context,
+                                builder:
+                                    (ctx) => AlertDialog(
+                                      title: const Text('Inicia sesión'),
+                                      content: const Text(
+                                        'Debes iniciar sesión para continuar con la compra',
+                                      ),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () => Navigator.pop(ctx),
+                                          child: const Text('Cancelar'),
+                                        ),
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.pop(ctx);
+                                            context.push('/login');
+                                          },
+                                          child: const Text('Iniciar sesión'),
+                                        ),
+                                      ],
+                                    ),
+                              );
+                            } else {
+                              // Usuario autenticado, proceder a checkout
+                              context.push('/checkout');
+                            }
                           },
                           icon: const Icon(Icons.shopping_bag, size: 24),
                           label: const Text(

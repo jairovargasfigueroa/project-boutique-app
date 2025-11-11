@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/services/storage_service.dart';
+import '../../../../core/services/notification_service.dart';
 import '../../data/models/user_model.dart';
 import '../../data/repositories/auth_repository_impl.dart';
 
@@ -66,6 +67,9 @@ class AuthProvider extends ChangeNotifier {
           nombre: _user!.username,
           email: _user!.email,
         );
+
+        // Generar nuevo token FCM para este usuario
+        await NotificationService.forceTokenRefreshAndSend();
       }
     } catch (e) {
       _error = e.toString();

@@ -7,8 +7,10 @@ class ProductosRepositoryImpl {
 
   ProductosRepositoryImpl({required this.datasource});
 
-  Future<List<ProductoModel>> getProductos() async {
-    return await datasource.getProductos();
+  Future<List<ProductoModel>> getProductos({
+    Map<String, dynamic>? filtros,
+  }) async {
+    return await datasource.getProductos(filtros: filtros);
   }
 
   Future<ProductoModel> obtenerProductoPorId(int id) async {

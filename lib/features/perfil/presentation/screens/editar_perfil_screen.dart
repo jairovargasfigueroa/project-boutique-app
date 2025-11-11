@@ -21,6 +21,7 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
   late TextEditingController _emailController;
   late TextEditingController _firstNameController;
   late TextEditingController _lastNameController;
+  late TextEditingController _telefonoController;
 
   bool _isLoading = false;
 
@@ -33,6 +34,7 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
     _emailController = TextEditingController();
     _firstNameController = TextEditingController();
     _lastNameController = TextEditingController();
+    _telefonoController = TextEditingController();
 
     // Cargar datos actuales
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -43,6 +45,7 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
         _emailController.text = perfil.email;
         _firstNameController.text = perfil.firstName ?? '';
         _lastNameController.text = perfil.lastName ?? '';
+        _telefonoController.text = perfil.telefono ?? '';
       }
     });
   }
@@ -53,6 +56,7 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
     _emailController.dispose();
     _firstNameController.dispose();
     _lastNameController.dispose();
+    _telefonoController.dispose();
     super.dispose();
   }
 
@@ -76,7 +80,7 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
         firstName: _firstNameController.text.trim(),
         lastName: _lastNameController.text.trim(),
         rol: perfilProvider.perfil!.rol,
-        telefono: perfilProvider.perfil!.telefono,
+        telefono: _telefonoController.text.trim(),
       );
 
       await perfilProvider.actualizarPerfil(perfilActualizado);
@@ -293,6 +297,28 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
                       }
                       if (value.trim().length < 2) {
                         return 'El apellido debe tener al menos 2 caracteres';
+                      }
+                      return null;
+                    },
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // Teléfono
+                  TextFormField(
+                    controller: _telefonoController,
+                    decoration: const InputDecoration(
+                      labelText: 'Teléfono',
+                      prefixIcon: Icon(Icons.phone),
+                      border: OutlineInputBorder(),
+                      hintText: 'Ej: 3001234567',
+                    ),
+                    keyboardType: TextInputType.phone,
+                    validator: (value) {
+                      if (value != null && value.trim().isNotEmpty) {
+                        if (value.trim().length < 7) {
+                          return 'El teléfono debe tener al menos 7 dígitos';
+                        }
                       }
                       return null;
                     },
