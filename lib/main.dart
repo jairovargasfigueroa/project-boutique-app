@@ -21,10 +21,31 @@ import 'package:boutique_app/features/auth/data/datasources/auth_datasource.dart
 import 'package:boutique_app/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:boutique_app/features/auth/presentation/providers/auth_provider.dart';
 import 'package:boutique_app/core/services/storage_service.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:boutique_app/core/services/notification_service.dart';
+import 'firebase_options.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-void main() {
+/// Función para manejar mensajes en background
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  print('🔔 Mensaje recibido en background: ${message.notification?.title}');
+}
+
+
+void main() async{
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // 🔥 Inicializar Firebase
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  // 🔔 Configurar handler para mensajes en background
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
+  // 📱 Inicializar servicio de notificaciones
+  await NotificationService.initialize();
   runApp(const MyApp());
 }
 

@@ -13,10 +13,43 @@ import 'package:boutique_app/features/auth/presentation/screens/login_screen.dar
 import 'package:boutique_app/features/auth/presentation/screens/register_screen.dart';
 import 'package:go_router/go_router.dart';
 import 'scaffold_with_nav.dart';
+import '../services/storage_service.dart';
 
 final GoRouter appRouter = GoRouter(
   debugLogDiagnostics: true, // ← Ver logs en consola
   initialLocation: '/productos',
+
+  // 🔒 Guard para proteger rutas que requieren autenticación
+  redirect: (context, state) async {
+    final storage = StorageService();
+    final isLoggedIn = await storage.hasToken();
+
+    // Rutas que requieren autenticación
+    final rutasProtegidas = [
+      '/checkout',
+      '/pagos',
+      '/pedidos/detalle',
+      '/perfil/editar',
+    ];
+
+    final estaEnRutaProtegida = rutasProtegidas.any(
+      (ruta) => state.matchedLocation.startsWith(ruta),
+    );
+
+    // Si intenta acceder a ruta protegida sin autenticación → login
+    if (!isLoggedIn && estaEnRutaProtegida) {
+      return '/login';
+    }
+
+    // Si está logueado e intenta ir a login/register → productos
+    if (isLoggedIn &&
+        (state.matchedLocation == '/login' ||
+            state.matchedLocation == '/register')) {
+      return '/productos';
+    }
+
+    return null; // Permitir navegación
+  },
 
   routes: [
     // 🏠 Shell con Tabs

@@ -1,6 +1,7 @@
 // lib/features/pedidos/presentation/screens/pedido_detalle_screen.dart
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/utils/date_formatter.dart';
 import '../../data/datasources/pedidos_datasource.dart';
 import '../../data/repositories/pedidos_repository_impl.dart';
@@ -52,12 +53,12 @@ class _PedidoDetalleScreenState extends State<PedidoDetalleScreen> {
 
   Color _getEstadoColor(String estado) {
     switch (estado.toLowerCase()) {
-      case 'pagado':
+      case 'completado':
         return Colors.green;
       case 'pendiente':
         return Colors.orange;
-      case 'parcial':
-        return Colors.blue;
+      case 'cancelado':
+        return Colors.red;
       default:
         return Colors.grey;
     }
@@ -138,15 +139,15 @@ class _PedidoDetalleScreenState extends State<PedidoDetalleScreen> {
                             ),
                             const SizedBox(height: 12),
 
-                            // Tipo de pago
+                            // Tipo de venta
                             _buildInfoRow(
                               Icons.payment,
-                              'Tipo de Pago',
-                              _ventaDetalle!.tipoPago.toUpperCase(),
+                              'Tipo de Venta',
+                              _ventaDetalle!.tipoVenta.toUpperCase(),
                             ),
                             const SizedBox(height: 12),
 
-                            // Estado de pago
+                            // Estado
                             Row(
                               children: [
                                 Icon(
@@ -167,15 +168,15 @@ class _PedidoDetalleScreenState extends State<PedidoDetalleScreen> {
                                   ),
                                   decoration: BoxDecoration(
                                     color: _getEstadoColor(
-                                      _ventaDetalle!.estadoPago,
+                                      _ventaDetalle!.estado,
                                     ).withOpacity(0.1),
                                     borderRadius: BorderRadius.circular(20),
                                   ),
                                   child: Text(
-                                    _ventaDetalle!.estadoPago.toUpperCase(),
+                                    _ventaDetalle!.estado.toUpperCase(),
                                     style: TextStyle(
                                       color: _getEstadoColor(
-                                        _ventaDetalle!.estadoPago,
+                                        _ventaDetalle!.estado,
                                       ),
                                       fontWeight: FontWeight.bold,
                                       fontSize: 12,
@@ -208,6 +209,36 @@ class _PedidoDetalleScreenState extends State<PedidoDetalleScreen> {
                                 ),
                               ],
                             ),
+
+                            const SizedBox(height: 16),
+
+                            // Botón de pagar si está pendiente
+                            if (_ventaDetalle!.estado == 'pendiente')
+                              SizedBox(
+                                width: double.infinity,
+                                child: ElevatedButton.icon(
+                                  onPressed: () {
+                                    context.push(
+                                      '/pagos/${_ventaDetalle!.id}',
+                                      extra: {
+                                        'ventaId': _ventaDetalle!.id,
+                                        'total': double.parse(
+                                          _ventaDetalle!.total,
+                                        ),
+                                      },
+                                    );
+                                  },
+                                  icon: const Icon(Icons.payment),
+                                  label: const Text('Continuar con el Pago'),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.orange,
+                                    foregroundColor: Colors.white,
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 16,
+                                    ),
+                                  ),
+                                ),
+                              ),
                           ],
                         ),
                       ),
@@ -237,7 +268,7 @@ class _PedidoDetalleScreenState extends State<PedidoDetalleScreen> {
                             children: [
                               // Nombre del producto
                               Text(
-                                item.productoNombre,
+                                item.nombreProducto,
                                 style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
@@ -245,46 +276,25 @@ class _PedidoDetalleScreenState extends State<PedidoDetalleScreen> {
                               ),
                               const SizedBox(height: 8),
 
-                              // Variante (color y talla)
-                              Row(
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                      vertical: 4,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: Colors.blue[50],
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: Text(
-                                      item.color,
-                                      style: TextStyle(
-                                        color: Colors.blue[800],
-                                        fontSize: 12,
-                                      ),
+                              // Talla (si existe)
+                              if (item.talla != null)
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 4,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.orange[50],
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Text(
+                                    'Talla: ${item.talla}',
+                                    style: TextStyle(
+                                      color: Colors.orange[800],
+                                      fontSize: 12,
                                     ),
                                   ),
-                                  const SizedBox(width: 8),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                      vertical: 4,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: Colors.orange[50],
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: Text(
-                                      item.talla,
-                                      style: TextStyle(
-                                        color: Colors.orange[800],
-                                        fontSize: 12,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
+                                ),
 
                               const Divider(height: 24),
 
@@ -312,7 +322,7 @@ class _PedidoDetalleScreenState extends State<PedidoDetalleScreen> {
                                     ],
                                   ),
                                   Text(
-                                    'Bs. ${item.subtotal}',
+                                    'Bs. ${item.subTotal}',
                                     style: const TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,

@@ -39,7 +39,13 @@ class AuthDatasource {
         'last_name': lastName,
       });
 
-      return UserModel.fromJson(response.data);
+      // El usuario está dentro de "user"
+      final userData = response.data['user'];
+      // Agregar los tokens al userData
+      userData['token'] = response.data['access'];
+      userData['refreshtoken'] = response.data['refresh'];
+
+      return UserModel.fromJson(userData);
     } catch (e) {
       throw Exception('Error al registrar usuario: $e');
     }

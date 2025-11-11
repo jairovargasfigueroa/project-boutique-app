@@ -7,7 +7,7 @@ class ItemCarrito {
   ItemCarrito({required this.variante, this.cantidad = 1});
 
   // Subtotal de este item
-  double get subtotal => variante.precioVenta * cantidad;
+  double get subtotal => variante.precioNumerico * cantidad;
 
   // Para enviar al backend
   Map<String, dynamic> toJson() {

@@ -20,6 +20,25 @@ class ProductoCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Imagen del producto
+              if (producto.imagenUrl.isNotEmpty)
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.network(
+                    producto.imagenUrl,
+                    height: 150,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        height: 150,
+                        color: Colors.grey[300],
+                        child: const Icon(Icons.image_not_supported, size: 50),
+                      );
+                    },
+                  ),
+                ),
+              const SizedBox(height: 12),
               Text(
                 producto.nombre,
                 style: const TextStyle(
@@ -31,40 +50,38 @@ class ProductoCard extends StatelessWidget {
               Text(
                 producto.descripcion,
                 style: TextStyle(color: Colors.grey[600]),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
               const SizedBox(height: 8),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
+                  Chip(
+                    label: Text(producto.genero),
+                    backgroundColor: Colors.blue[100],
+                  ),
                   Text(
-                    '\$${producto.precioBase}',
-                    style: const TextStyle(
-                      fontSize: 16,
+                    'Stock: ${producto.stock}',
+                    style: TextStyle(
+                      color: producto.stock > 0 ? Colors.green : Colors.red,
                       fontWeight: FontWeight.bold,
-                      color: Colors.green,
                     ),
                   ),
-                  if (producto.genero != null)
-                    Chip(
-                      label: Text(producto.genero!),
-                      backgroundColor: Colors.blue[100],
-                    ),
                 ],
               ),
+              const SizedBox(height: 8),
               if (producto.marca != null) ...[
-                const SizedBox(height: 8),
                 Text(
                   'Marca: ${producto.marca}',
                   style: TextStyle(color: Colors.grey[600], fontSize: 12),
                 ),
-              ],
-              if (producto.categoria != null) ...[
                 const SizedBox(height: 4),
-                Text(
-                  'Categoría: ${producto.categoria!.nombre}',
-                  style: TextStyle(color: Colors.grey[600], fontSize: 12),
-                ),
               ],
+              Text(
+                'Categoría: ${producto.categoriaNombre}',
+                style: TextStyle(color: Colors.grey[600], fontSize: 12),
+              ),
             ],
           ),
         ),

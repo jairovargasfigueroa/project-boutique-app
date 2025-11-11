@@ -1,29 +1,33 @@
 // lib/features/pagos/data/datasources/pagos_datasource.dart
 
-import 'dart:convert';
-import 'package:http/http.dart' as http;
+import '../../../../core/services/api_service.dart';
+import '../../../../core/constants/api_constants.dart';
 import '../models/pago_request_model.dart';
 
 class PagosDatasource {
-  final String baseUrl = 'http://192.168.1.9:8000/api';
+  final ApiService _apiService = ApiService();
 
   Future<Map<String, dynamic>> crearPago(PagoRequest pago) async {
-    final url = Uri.parse('$baseUrl/pagos/');
-
     try {
-      final response = await http.post(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(pago.toJson()),
+      print('🌐 Creando pago en: ${ApiConstants.baseUrl}${ApiConstants.pagos}');
+      print('📤 Datos: ${pago.toJson()}');
+
+      final response = await _apiService.post(
+        ApiConstants.pagos,
+        pago.toJson(),
       );
 
-      if (response.statusCode == 201) {
-        return jsonDecode(response.body);
+      print('📡 Status Code: ${response.statusCode}');
+      print('📄 Response Data: ${response.data}');
+
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        return response.data as Map<String, dynamic>;
       } else {
         throw Exception('Error al crear pago: ${response.statusCode}');
       }
     } catch (e) {
-      throw Exception('Error de conexión: $e');
+      print('❌ Error en crearPago: $e');
+      rethrow;
     }
   }
 }

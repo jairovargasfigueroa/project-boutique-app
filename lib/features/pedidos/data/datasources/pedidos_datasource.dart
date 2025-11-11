@@ -1,46 +1,56 @@
 // lib/features/pedidos/data/datasources/pedidos_datasource.dart
 
-import 'dart:convert';
-import 'package:http/http.dart' as http;
+import '../../../../core/services/api_service.dart';
+import '../../../../core/constants/api_constants.dart';
 import '../models/venta_model.dart';
 import '../models/venta_detalle_model.dart';
 
 class PedidosDatasource {
-  final String baseUrl = 'http://192.168.1.9:8000/api';
+  final ApiService _apiService = ApiService();
 
-  // Obtener lista de ventas
-  Future<List<Venta>> obtenerVentas() async {
-    final url = Uri.parse('$baseUrl/ventas/');
-
+  // Obtener lista de ventas (mis pedidos del usuario autenticado)
+  Future<List<Venta>> obtenerMisPedidos() async {
     try {
-      final response = await http.get(url);
+      print(
+        '🌐 Obteniendo pedidos: ${ApiConstants.baseUrl}${ApiConstants.misPedidos}',
+      );
+
+      final response = await _apiService.get(ApiConstants.misPedidos);
+
+      print('📡 Status Code: ${response.statusCode}');
+      print('📄 Response Data: ${response.data}');
 
       if (response.statusCode == 200) {
-        final List<dynamic> data = jsonDecode(response.body);
+        final List<dynamic> data = response.data as List<dynamic>;
         return data.map((json) => Venta.fromJson(json)).toList();
       } else {
         throw Exception('Error al obtener ventas: ${response.statusCode}');
       }
     } catch (e) {
-      throw Exception('Error de conexión: $e');
+      print('❌ Error en obtenerVentas: $e');
+      rethrow;
     }
   }
 
   // Obtener detalle de una venta específica
   Future<VentaDetalle> obtenerVentaDetalle(int ventaId) async {
-    final url = Uri.parse('$baseUrl/ventas/$ventaId/');
-
     try {
-      final response = await http.get(url);
+      final endpoint = '${ApiConstants.ventas}$ventaId/';
+      print('🌐 Obteniendo detalle: ${ApiConstants.baseUrl}$endpoint');
+
+      final response = await _apiService.get(endpoint);
+
+      print('📡 Status Code: ${response.statusCode}');
+      print('📄 Response Data: ${response.data}');
 
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        return VentaDetalle.fromJson(data);
+        return VentaDetalle.fromJson(response.data);
       } else {
         throw Exception('Error al obtener detalle: ${response.statusCode}');
       }
     } catch (e) {
-      throw Exception('Error de conexión: $e');
+      print('❌ Error en obtenerVentaDetalle: $e');
+      rethrow;
     }
   }
 }
