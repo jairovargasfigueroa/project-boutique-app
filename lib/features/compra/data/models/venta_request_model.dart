@@ -15,7 +15,7 @@ class VentaRequest {
 class ItemVenta {
   final int varianteId;
   final int cantidad;
-
+  
   ItemVenta({required this.varianteId, required this.cantidad});
 
   Map<String, dynamic> toJson() {

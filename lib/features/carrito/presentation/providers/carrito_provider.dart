@@ -10,6 +10,7 @@ class CarritoProvider extends ChangeNotifier {
   double get total => _items.fold(0, (sum, item) => sum + item.subtotal);
   bool get estaVacio => _items.isEmpty;
 
+
   // Agregar variante al carrito
   void agregarVariante(VarianteProducto variante, {int cantidad = 1}) {
     final index = _items.indexWhere((item) => item.variante.id == variante.id);
